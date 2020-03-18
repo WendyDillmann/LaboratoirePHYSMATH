@@ -21,7 +21,8 @@ ROUGE = (255, 0, 0)
 ### Variables Globales
 global variable_memorisee
 variable_memorisee = 0
-
+global sortie_bouton
+sortie_bouton = 0
 def dessiner_arduino(sortie_arduino, sortie_CD4511, sortie_bouton):
 	fenetre.blit(image_arduino, pos_arduino)
 	fenetre.blit(image_CD4511, pos_CD4511)
@@ -78,7 +79,6 @@ def dessiner_afficheur(sortie_CD4511):
 	return
 
 def sortie_memorisee(variable_memorisee):
-	
 	print('petite fleur')
 	valeur_memorisee = variable_memorisee
 	
@@ -114,33 +114,42 @@ def composant_CD4511(entree):
 	neuf = np.array([1,0,0,1])
 	if((a == zero).all()):
 		tdv[0] = [1,1,1,1,1,1,0]
-
+		print('0')
 	if ((a == un).all()):
 		tdv[1] = [0,1,1,0,0,0,0]
+		print('1')
 
 	if ((a == deux ).all()):
 		tdv[2] = [1,1,0,1,1,0,1]
+		print('2')
  
 	if ((a == trois).all()):
 		tdv[3] = [1,1,1,1,0,0,1]
+		print('3')
 
 	if ((a == quatre).all()):
 		tdv[4] = [0,1,1,0,0,1,1]
+		print('4')
 
 	if ((a == cinq).all()):
 		tdv[5] = [1,0,1,1,0,1,1]
+		print('5')
 
 	if((a == six).all()):
 		tdv[6] = [1,0,1,1,1,1,1]
+		print('6')
 
 	if((a == sept).all()):
 		tdv[7] = [1,1,1,0,0,0,0]
+		print('7')
 
 	if ((a == huit).all()):	
 		tdv[8] = [1,1,1,1,1,1,1]
+		print('8')
 
 	if ((a == neuf).all()):
 		tdv[9] = [1,1,1,1,0,1,1]
+		print('9')
 
 	i = 0
 	nb_int = 0
@@ -152,24 +161,24 @@ def composant_CD4511(entree):
 	
 	return tdv[nb_int]
 
-
+def gerer_bouton(evenement):
+	(x,y) = evenement.pos
+	if (evenement.button == 1):
+		return evenement.pos
 def gerer_click():
-	global variable_memorisee 
+	global variable_memorisee
 	variable_memorisee = (variable_memorisee +1) %10
+	sorite_bouton = 1
 	return variable_memorisee
 
 
 def connexion_bouton(sortie_bouton):
-	
 	for i in range(0, 7):
 		if sortie_bouton == 0:
 			couleur = NOIR
 		else:
 			couleur = ROUGE
-		pygame.draw.line(fenetre, couleur, (pin_bouton ),
-			(pin_arduino ), 5)
-		
-
+		pygame.draw.line(fenetre, couleur, (pin_bouton[0],pin_bouton[1]),(pin_arduino[0],pin_arduino[1]), 5)
 	return
 
 ### Paramètre(s)
@@ -220,19 +229,20 @@ couleur_fond = GRIS
 
 while True:
 	temps_maintenant = pygame.time.get_ticks()
+	x_souris, y_souris = pygame.mouse.get_pos()
 	for evenement in pygame.event.get():
 		if evenement.type == pygame.QUIT:
 			pygame.quit()
 			sys.exit()
 		elif evenement.type == pygame.MOUSEBUTTONDOWN:
+			gerer_bouton(evenement)
 			gerer_click()
-	sortie_bouton = 0
 	fenetre.fill(couleur_fond)
     
 	sortie_CD4511 = composant_CD4511(sortie_memorisee(variable_memorisee))
-   
+	print('sortie_CD4511')
 	dessiner_afficheur(sortie_CD4511)
-	dessiner_arduino(sortie_memorisee(), sortie_CD4511, sortie_bouton)
+	dessiner_arduino(sortie_memorisee(variable_memorisee), sortie_CD4511, sortie_bouton)
 
 	pygame.display.flip()
 	horloge.tick(images_par_seconde)
